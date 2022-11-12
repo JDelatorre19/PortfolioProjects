@@ -5,7 +5,7 @@
 
 As a fan of Formula 1, this is my first major data analysis project. The data for this project is pulled from Kaggle and uses R and RStudio as the primary programming language for analysis. All files are explored for their general purposes on the kaggle page and Microsoft Excel to determine the most necessary datasets for this analysis. The working directory in RStudio is then set to the folder dataset with the corresponding libraries and datasets, four specific tables are then loaded 'Sprint Results', 'Races', 'Drivers', and 'Results'. The data for each table is cleaned to remove unnecessary data unrelated to the 2021 season and parsed further down into the races that involved sprint qualifying sessions. Inner joins are performed to combine the data into a single data frame and the new table is filtered for the British GP. The data is then explored and visualized with ggplot to gain insight on how the Sprint Qualifying of the British Grand Prix affected the overall results of the final race.
 
-*Due to the extensive nature of the Formula 1 data set and the soon to be ending of the 2022 season, future analyses may be performed to gain more insight on various grand prix's and this motorsport.*
+*Due to the extensive nature of the Formula 1 data set and the upcoming conclusion of the 2022 season, future analyses may be performed to gain more insight on various grand prix's and this fantastic motorsport.*
 
 ## Project 2: Covid Analysis with Data Frames built in SQL and exported into Tableau for visualization
 
