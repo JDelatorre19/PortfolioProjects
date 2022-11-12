@@ -1,4 +1,4 @@
-# PortfolioProjects
+# Data Analysis Portfolio Projects
 *Last Updated 12 Nov 20222*
 
 ## Project 1: Formula 1 British Grand Prix Sprint Analysis
