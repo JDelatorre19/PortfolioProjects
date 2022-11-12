@@ -1,7 +1,7 @@
 ---
-title: "2021_British_GP_Sprint_Analysis"
+title: "2021 British GP Sprint Analysis"
 author: "Jose Delatorre"
-date: "2022-08-30"
+date: "2022-09-19"
 output: html_document
 ---
 ```{r setup, include=FALSE}
@@ -13,11 +13,9 @@ library(scales)
 ```
 # Formula 1 Sprint Qualifying Analysis
 
-The purpose of this analysis is to determine how sprint qualifying races for the 2021 and 2022 seasons of Formula 1 (F1) have changed the outcomes of the race weekend and the race itself. The concept of sprint qualifying format for F1 was introduced in the 2021 season changes such that three race weekends in a season will be utilizing the spring qualifying races. 
+This purpose of this analysis is to determine how sprint qualifiying races for Formula One (F1) have changed the outcomes of the race weekend and the races themselves. Although there have been a total of five sprint qualifying events for F1, this will specifically cover the 2021 British Grand Prix.
 
-This analysis will be the 
-
-A normal Formula 1 race weekend consists of about three days of on track time with the cars. Fridays (Day 1) are Free Practice Sessions (FP) where teams are able to test out the track and car setups over two separate 1-hour sessions. Saturdays are a mix of the final FP session for a total of three FP sesssions and three rounds of lap-time based qualifying sessions durin which the bottom 5 are 'eliminated' per session. A drivers elimination from the qualifying session will determine their position on the starting grid for Day 3 which is the Grand Prix running for a minimum of 305km (190miles) plus one lap. The only exception to this metric is the Monaco Grand Prix which is a distance of 260km (160mi).
+A normal Formula 1 race weekend consists of about three days of on-track time with the cars. Fridays (Day 1) are Free Practice Sessions (FP) where teams are able to test out the track and car setups over two separate 1-hour sessions. Saturdays are a mix of the final FP session for a total of three FP sesssions and three rounds of lap-time based qualifying sessions durin which the bottom 5 are 'eliminated' per session. A drivers elimination from the qualifying session will determine their position on the starting grid for Day 3 which is the Grand Prix running for a minimum of 305km (190miles) plus one lap. The only exception to this metric is the Monaco Grand Prix which is a distance of 260km (160mi).
 
 This race weekend setup is modified slightly for sprint qualifying races. Day 1 is condensed to a single Free Practice session superseded by lap-time based qualifying. Day 2 starts with a second Free Practice session which is followed by the sprint race lasting for a total of 100km (62mi). Day 3 remains unchanged consisting of only the Grand Prix with the starting grid positions now determined by the results of the Sprint Race. For more info regarding Formula 1 Sprint races go here <link for Sprint>
 
@@ -30,12 +28,13 @@ Is the pole sitting driver after the lap-time based qualifying sessions also the
 
 ## Prepare
 ### Importing the data for analysis
-The data that for the analysis was downloaded via [Kaggle](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020) after which it is loaded in SQL nor and RStudio into a pipeline using read.csv and then previewed with the tibble function. The data is imported using the table function rather than the read.csv as it creates a more mergable table however it is entirely preferential. 
+The data that for the analysis was downloaded via [Kaggle](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020) after which it is loaded in SQL nor and RStudio into a pipeline using read.csv and then previewed with the tibble function. The data is imported using the table function rather than the read.csv as it creates a table that is easier to work with however it is entirely preferential. 
 
 The data for this analysis was downloaded via Kaggle after which it is loaded into SQL and RStudio using a table 
 
 ```{r}
-# Dataset 1: Sprint results
+# change the filepaths to match the source for where the file data is.
+# Dataset 1: Sprint results 
 sprint_results <- data.frame(read.table("F1_Data_1950-2022/sprint_results.csv",header=TRUE, sep=","))
 # Dataset 2: Formula 1 Race Data from 1950-2022
 races <- data.frame(read.table("F1_Data_1950-2022/races.csv",header=TRUE,sep=","))
@@ -46,17 +45,18 @@ results <- data.frame(read.table("F1_Data_1950-2022/results.csv", header= TRUE,s
 ```
 
 ## Process - Cleaning the Data
-After the data has been imported, it is recommended the data be cleaned to remove any unnecessary clutter from the three tables. Cleaning the data will help with reducing the amount of clutter for each of the tables which will become especially important when joining the tables in the next few steps. Taking a look at each of the datasets using the View() function and remove any nulls.
+After the data has been imported, the data should be cleaned to remove any unnecessary clutter from the four tables. Cleaning the data will help reduce the amount of clutter for each of the tables and taking a look at each of the datasets using the View() function and remove any nulls.
 
 ```{r}
+#RUN ONLY ONCE, IT WILL CREATE AN ERROR 
 sprint_results <- sprint_results[-c(13,16)]
 results <- subset(results,select = -c(13,18))
 drivers <- subset(drivers, select = -c(dob,url,nationality))
 races <- races[-c(8:18)]
+#RUN ONLY ONCE, IT WILL CREATE AN ERROR 
+# An error may occur when removing columns from the races dataset using column names so to avoid the error and to save space, using their indexed column numbers to remove them is cleaner
 ```
-RUN ONLY ONCE, IT WILL CREATE AN ERROR 
 
-An error may occur when removing columns from the races dataset using column names so to avoid the error and to save space, using their indexed column numbers to remove them is cleaner
 ### First Join - Sprints Results and Drivers 
 
 Once the unnecessary columns have been removed, join sprint_results and drivers tables based on the driverId, this should then create a much smaller table for us to view the results of the sprint qualifying races with the drivers names shown. 
