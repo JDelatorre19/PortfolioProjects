@@ -1,0 +1,180 @@
+---
+title: "2021_British_GP_Sprint_Analysis"
+author: "Jose Delatorre"
+date: "2022-08-30"
+output: html_document
+---
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(tibble)
+library(dplyr)
+library(scales)
+```
+# Formula 1 Sprint Qualifying Analysis
+
+The purpose of this analysis is to determine how sprint qualifying races for the 2021 and 2022 seasons of Formula 1 (F1) have changed the outcomes of the race weekend and the race itself. The concept of sprint qualifying format for F1 was introduced in the 2021 season changes such that three race weekends in a season will be utilizing the spring qualifying races. 
+
+This analysis will be the 
+
+A normal Formula 1 race weekend consists of about three days of on track time with the cars. Fridays (Day 1) are Free Practice Sessions (FP) where teams are able to test out the track and car setups over two separate 1-hour sessions. Saturdays are a mix of the final FP session for a total of three FP sesssions and three rounds of lap-time based qualifying sessions durin which the bottom 5 are 'eliminated' per session. A drivers elimination from the qualifying session will determine their position on the starting grid for Day 3 which is the Grand Prix running for a minimum of 305km (190miles) plus one lap. The only exception to this metric is the Monaco Grand Prix which is a distance of 260km (160mi).
+
+This race weekend setup is modified slightly for sprint qualifying races. Day 1 is condensed to a single Free Practice session superseded by lap-time based qualifying. Day 2 starts with a second Free Practice session which is followed by the sprint race lasting for a total of 100km (62mi). Day 3 remains unchanged consisting of only the Grand Prix with the starting grid positions now determined by the results of the Sprint Race. For more info regarding Formula 1 Sprint races go here <link for Sprint>
+
+## Ask
+### Question 1
+How much do positions change between the lap-time based qualifying, sprint-race qualifying and the full Grand Prix?
+
+### Question 2
+Is the pole sitting driver after the lap-time based qualifying sessions also the driver to win the sprint qualifying race and in turn that respective Grand Prix? 
+
+## Prepare
+### Importing the data for analysis
+The data that for the analysis was downloaded via [Kaggle](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020) after which it is loaded in SQL nor and RStudio into a pipeline using read.csv and then previewed with the tibble function. The data is imported using the table function rather than the read.csv as it creates a more mergable table however it is entirely preferential. 
+
+The data for this analysis was downloaded via Kaggle after which it is loaded into SQL and RStudio using a table 
+
+```{r}
+# Dataset 1: Sprint results
+sprint_results <- data.frame(read.table("F1_Data_1950-2022/sprint_results.csv",header=TRUE, sep=","))
+# Dataset 2: Formula 1 Race Data from 1950-2022
+races <- data.frame(read.table("F1_Data_1950-2022/races.csv",header=TRUE,sep=","))
+# Dataset 3: Comprehensive Driver Data
+drivers <- data.frame(read.table("F1_Data_1950-2022/drivers.csv",header = TRUE,sep=","))
+# Dataset 4: Grand Prix Results
+results <- data.frame(read.table("F1_Data_1950-2022/results.csv", header= TRUE,sep = ","))
+```
+
+## Process - Cleaning the Data
+After the data has been imported, it is recommended the data be cleaned to remove any unnecessary clutter from the three tables. Cleaning the data will help with reducing the amount of clutter for each of the tables which will become especially important when joining the tables in the next few steps. Taking a look at each of the datasets using the View() function and remove any nulls.
+
+```{r}
+sprint_results <- sprint_results[-c(13,16)]
+results <- subset(results,select = -c(13,18))
+drivers <- subset(drivers, select = -c(dob,url,nationality))
+races <- races[-c(8:18)]
+```
+RUN ONLY ONCE, IT WILL CREATE AN ERROR 
+
+An error may occur when removing columns from the races dataset using column names so to avoid the error and to save space, using their indexed column numbers to remove them is cleaner
+### First Join - Sprints Results and Drivers 
+
+Once the unnecessary columns have been removed, join sprint_results and drivers tables based on the driverId, this should then create a much smaller table for us to view the results of the sprint qualifying races with the drivers names shown. 
+
+```{r}
+sprints_x_driver <- merge(sprint_results,drivers, by = "driverId")
+sprints_x_driver <- merge(sprints_x_driver,races, by = "raceId")
+```
+Verify that the two tables have merged correctly and then perform a secondary join between 'sprints_merged' and 'races' using "raceId" as the primary key, overwriting the old 'sprints_x_driver' dataset
+
+### Second Join - Drivers and Results
+
+All tables that have been uploaded contain several potential primary keys which could make them suitable for merging into a single table however when attempting to merge them into a single table, the sprint results data merging with the races dataset causes the position to be overwritten. This is an extremely important point of the analysis as the results and winners of laptime qualifying, sprint qualifying, and the Grand Prix may not be the same. While an outer join would also be possible, this leads to 
+
+
+```{r}
+GP_results <- merge(results,drivers, by = "driverId") 
+GP_results <- merge(GP_results,races, by = "raceId")
+GP_results <- GP_results[-c(3,4,17)]
+```
+
+##
+
+
+```{r}
+# Confirm join success
+# If you have not done so, see what values are associated with each column 
+head(GP_results)
+head(sprints_x_driver)
+```
+### Filter the data
+Now that the datasets are condensed into a single working table we can utilize the single table to filter as necessary. The first filter to be applied will be separating the 2021 and 2022 seasons, the second will be by the Grand Prix, the third and final filter will be applied to reduce the analysis to the top five drivers per event. 
+
+#### Filter by Grand Prix, Year, and Top Five of Sprint Qualifying
+
+```{r}
+#Filter by Year, Grand Prix, and sort to only have the top five drivers finishing the sprint race
+Sprint_GP01_2021 <- filter(sprints_x_driver, year=='2021'& circuitId =='9' & position <=5)
+```
+#### Filter by Grand Prix, Year, and Top Five of Final Race Results
+
+```{r}
+#Filter by Year and Year
+Results_GP01_2021 <- filter(GP_results, year=='2021'& circuitId =='9' )
+```
+#### Top Five Drivers of Each Grand Prix
+Grid = Starting grid position
+Position = final position at completion of race/sprint
+```{r}
+British_GP <- merge(Results_GP01_2021 ,Sprint_GP01_2021, by = 'driverId')
+# Use \\ to bypass "\" which is considered an escape sequence
+#The next line searches for all values with \N within the British_GP dataset and replaces them with a value of 0
+British_GP[British_GP == "\\N"] <- 0
+transform(British_GP, position.x = as.numeric(position.x))
+```
+# Analysis
+Upon looking at the combined results of the British Grand Prix it appears to be that there were significant changes during the races.
+
+## 2021 British Grand Prix Sprint Qualifiying Results
+
+Focusing on the top five drivers positions, there were a number of changes that occurred during the short 17 lap sprint. The largest of those changes was Red Bull Racing driver, Sergio Perez (PER), who started the sprint in 5th place but ended in 20th under a 'Did Not Finish'or 'DNF' status. As a result of this, McLaren driver, Lando Norris (NOR), who started the race in 6th managed to finish at P5. The 3rd and 4th positions, Mercedes driver Valterri Bottas (BOT) and Ferrari Driver Charles Leclerc (LEC) respectively, remained unchanged from starting grid of the sprint race to their final positions of sprint qualifying. Starting grid positions for 1st and 2nd place were initially Mercedes driver, Lewis Hamilton (HAM) followed by Red Bull driver, Max Verstappen(VER). These positions were eventually swapped as Verstappen overtook Hamilton and held the position until the end of the sprint.
+
+## 2021 British Grand Prix Race Results
+
+Focusing on the top five drivers of the Grand Prix, there was a significant number of changes that lead to drivers starting and ending the race in different positions. The most notable of these changes was a racing incident pole position driver, Max Verstappen (VER) and P2 driver, Lewis Hamilton(HAM) during which the two drivers were rounding Copse Corner and collided. The front left wheel of Hamilton's car made contact with Verstappen's rear right wheel leading to Verstappen's car spinning out and crashing into the barriers at nearly 200 mph and with a force of 51G. After the race restart, Hamilton served a 10-second time penalty and went on to win the race with Leclerc(LEC), moving up from 4th to 2nd and Bottas(BOT) maintaining his position in 3rd. Rounding out the top 5 finishers were Norris (NOR) and Ricciardo(RIC) in 4th and 5th place respectively.
+
+### Insights
+
+Given the cutthroats conditions of Formula 1 it would be quite difficult to translate the incidents that happened in this race towards a larger scale for all of the Grand Prix weekends. However by zooming out and looking at the results and times for the entire weekend as a whole, there is a good chance that Max Verstappen would have won the 2021 British GP had it not been for the racing incident that resulted in his retirement from the race. In addition the race between Verstappen and Hamilton would have been an extremely close one as the two drivers were competitively battling it out on track for the drivers championship by this point in the season.
+
+# Share
+
+## British Grand Prix Sprint and Race Results
+```{r Sprint Races}
+# Assign the variables British GP_Sprint for the ggplot associated to Sprint Race
+British_SprintR <- ggplot(British_GP,aes(x = grid.x, y = code.y)) +
+  geom_point(size = 4, color = 'green')+
+  geom_segment(aes(x = positionOrder.x,
+                   xend = grid.x,
+                   size = 0.1,
+                   color = 'red',
+                   y = code.y,
+                   yend = code.y,)) +
+  scale_x_continuous(breaks= seq(0,20,2)) + 
+  labs(title = 'British GP Results: Grid vs Final Positions',
+       caption = 'this is a caption')
+  theme(axis.text.x = element_text(angle=65,vjust = 0.7))
+```
+```{r}
+British_GPR <- ggplot(British_GP,aes(x = code.y, y = grid.y)) +
+  geom_point(size = 4)+
+  geom_segment(aes(x = code.x,
+                   xend = code.x,
+                   size = 0.1,
+                   y = positionOrder.y,
+                   yend = grid.y)) +
+  labs(title = 'British GP Results: Grid vs Final Positions',
+       caption = 'this is a caption')
+  theme(axis.text.x = element_text(angle=65,vjust = 0.7))
+```
+```{r}
+British_GPR_2 <- ggplot(British_GP,aes(x = grid.y, y = code.y)) +
+  geom_point(size = 4)+
+  geom_segment(aes(x = positionOrder.y,
+                   xend = grid.y,
+                   size = 0.1,
+                   y = code.y,
+                   yend = code.y)) +
+   scale_x_continuous(breaks= seq(0,20,1)) +
+  labs(title = 'British Sprint Results: Grid vs Final Positions',
+       caption = 'this is a caption')
+  theme(axis.text.x = element_text(angle=65,vjust = 0.7))
+```
+
+
+
+```{r}
+plot(British_SprintR)
+plot(British_GPR)
+plot(British_GPR_2)
+```
