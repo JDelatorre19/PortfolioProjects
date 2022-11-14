@@ -23,7 +23,7 @@ This project is a series of SQL queries used to explore the housing prices in Na
 ## Link to Data for Project 1
 
 
--[Formula 1 Dataset - 1950-2022](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020)
+- [Formula 1 Dataset - 1950-2022](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020)
 
 
 ## Links to Data for Project 2
