@@ -7,7 +7,7 @@ As a fan of Formula 1, this is my first major data analysis project. The data fo
 
 *Due to the extensive nature of the Formula 1 data set and the upcoming conclusion of the 2022 season, future analyses may be performed to gain more insight on various grand prix's and this fantastic motorsport.*
 
-## Project 2: Covid Analysis with Data Frames built in SQL and exported into Tableau for visualization
+## Project 2: Covid Analysis with Data Frames built with SQL and exported into Tableau for visualization
 
 The Covid-19 Data is pulled from Our World in Data, data frame will be separated into two worksheets one for Covid-19 Vaccinations and a second for Covid-19 Deaths, the two worksheets are loaded into Microsoft SQL Server 2019. The data is then explored and parsed through using SQL queries, separated into 4 different views and exported into Tableau Public to be visualized in a dashboard.
 
